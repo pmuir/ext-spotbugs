@@ -45,7 +45,7 @@ func watch() (err error) {
 			log.Fatalf("unexpected type %s\n", event)
 		}
 		//
-		if act.Spec.Summaries.StaticProgramAnalysis.TotalClasses == 0 {
+		if act.Spec.Summaries.StaticProgramAnalysis.Name == "" {
 			for _, attachment := range act.Spec.Attachments {
 				if attachment.Name == "spotbugs" {
 					// TODO Handle having multiple attachments properly
@@ -75,13 +75,14 @@ func watch() (err error) {
 							categories[b.Category] = category
 						}
 						act.Spec.Summaries.StaticProgramAnalysis = jenkinsv1.StaticProgramAnalysis{
+							Name:           attachment.Name,
 							TotalBugs:      bugCollection.FindBugsSummary.TotalBugs,
 							HighPriority:   bugCollection.FindBugsSummary.HighPriority,
 							NormalPriority: bugCollection.FindBugsSummary.NormalPriority,
 							LowPriority:    bugCollection.FindBugsSummary.LowPriority,
 							Ignored:        bugCollection.FindBugsSummary.IgnorePriority,
 							TotalClasses:   bugCollection.FindBugsSummary.TotalClasses,
-							//Categories:     categories,
+							Categories:     categories,
 						}
 						act, err = client.PipelineActivities(act.Namespace).Update(act)
 						log.Printf("Updated PipelineActivity %s with data from %s\n", act.Name, url)

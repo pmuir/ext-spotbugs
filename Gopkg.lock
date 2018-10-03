@@ -93,7 +93,7 @@
   revision = "24818f796faf91cd76ec7bddd72458fbced7a6c1"
 
 [[projects]]
-  digest = "1:77f8fb15117d3684bb73d0d9e946e12de045e7e8b4f94b2d00eb0fcd1346024e"
+  digest = "1:715125c8170dfc651c2c0612c78211dda78839a20023fb2d525d9ac41cec643d"
   name = "github.com/jenkins-x/jx"
   packages = [
     "pkg/apis/jenkins.io",
@@ -104,8 +104,8 @@
     "pkg/util",
   ]
   pruneopts = "UT"
-  revision = "3027d217b9514c6c77cec6abb7c4068896b6ca9c"
-  version = "v1.3.357"
+  revision = "1536a703aae2628fab849adba8f91eb0708c38dc"
+  version = "v1.3.360"
 
 [[projects]]
   digest = "1:3e551bbb3a7c0ab2a2bf4660e7fcad16db089fdcfbb44b0199e62838038623ea"
@@ -122,6 +122,14 @@
   packages = ["."]
   pruneopts = "UT"
   revision = "95032a82bc518f77982ea72343cc1ade730072f0"
+
+[[projects]]
+  branch = "master"
+  digest = "1:f44d34fda864bed6d6c71514cd40b2ee097e6e67f745d5d014113e1faa5af8b7"
+  name = "github.com/konsorten/go-windows-terminal-sequences"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "b729f2633dfe35f4d1d8a32385f6685610ce1cb5"
 
 [[projects]]
   digest = "1:c658e84ad3916da105a761660dcaeb01e63416c8ec7bc62256a9b411a05fcd67"
@@ -172,6 +180,14 @@
   version = "v0.8.0"
 
 [[projects]]
+  digest = "1:dc2d85c13ac22c22a1f3170a41a8e1b897fa05134aaf533f16df44f66a25b4a1"
+  name = "github.com/sirupsen/logrus"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "a67f783a3814b8729bd2dac5780b5f78f8dbd64d"
+  version = "v1.1.0"
+
+[[projects]]
   digest = "1:b6a36362d5e8aa384201fbc594b43a998ab9f0f9be83897d71af9bc148a22b2d"
   name = "github.com/stoewer/go-strcase"
   packages = ["."]
@@ -200,7 +216,7 @@
     "idna",
   ]
   pruneopts = "UT"
-  revision = "4dfa2610cdf3b287375bbba5b8f2a14d3b01d8de"
+  revision = "f5e5bdd778241bfefa8627f7124c39cd6ad8d74f"
 
 [[projects]]
   branch = "master"
