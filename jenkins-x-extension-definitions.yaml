@@ -28,7 +28,7 @@ extensions:
   parameters:
   - name: provider
     description: The provider to use to publish SpotBugs reports
-- name: spotbugsMavenAnalyzer
+- name: spotbugsAnalyzer
   namespace: jx
   uuid: fcb84b16-cb29-11e8-a8d5-f2801f1b9fd1
   description: Installs the analyzer microservice that summarises facts about the static program analysis
