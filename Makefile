@@ -1,6 +1,6 @@
 SHELL := /bin/bash
 GO := GO15VENDOREXPERIMENT=1 go
-NAME := jenkins-x-spotbugs-reporter
+NAME := ext-spotbugs
 OS := $(shell uname)
 MAIN_GO := main.go
 ROOT_PACKAGE := $(GIT_PROVIDER)/$(ORG)/$(NAME)

@@ -14,7 +14,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/rest"
 
-	"github.com/jenkins-x/jenkins-x-spotbugs-reporter/findbugs"
+	"github.com/jenkins-x/ext-spotbugs/findbugs"
 
 	"github.com/pkg/errors"
 )
