@@ -1,2 +1,2 @@
 #!/bin/sh
-helm install chartmuseum/ext-jacoco --version ${VERSION}
+helm install chartmuseum/ext-spotbugs --version ${VERSION}
