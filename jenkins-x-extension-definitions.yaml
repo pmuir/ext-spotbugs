@@ -31,7 +31,28 @@ extensions:
 - name: spotbugsAnalyzer
   namespace: jx
   uuid: fcb84b16-cb29-11e8-a8d5-f2801f1b9fd1
+  description: The analyzer microservice that summarises facts about the static program analysis
+  displayInCatalog: false
+  children:
+  - name: spotbugsAnalyzerInstall
+    namespace: jx
+  - name: spotbugsAnalyzerUpgrade
+    namespace: jx
+- name: spotbugsAnalyzerInstall
+  namespace: jx
   description: Installs the analyzer microservice that summarises facts about the static program analysis
   displayInCatalog: false
+  parameters:
+  - name: chartRepository
+    defaultValue: jenkins-x-extensions
   when:
   - onInstall
+- name: spotbugsAnalyzerUpgrade
+  namespace: jx
+  description: Upgrades the analyzer microservice that summarises facts about the static program analysis
+  displayInCatalog: false
+  parameters:
+  - name: chartRepository
+    defaultValue: jenkins-x-extensions
+  when:
+  - onUpgrade
