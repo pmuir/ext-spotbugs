@@ -4,9 +4,9 @@ extensions:
   uuid: 9e5d081e-c7c7-11e8-a8d5-f2801f1b9fd1
   description: Runs Spotbugs against a Maven project, attaches the output to the build, publishes the reports generated and summarises facts about the static program analysis to the build
   children:
-  - name: spotbugsMavenAnalyzer
+  - name: spotbugsAnalyzer
     namespace: jx
-    uuid: e63fbbd0-cb29-11e8-a8d5-f2801f1b9fd1
+    uuid: fcb84b16-cb29-11e8-a8d5-f2801f1b9fd1
   - name: spotbugsMavenRun
     namespace: jx
     uuid: dbaa4866-cb29-11e8-a8d5-f2801f1b9fd1
