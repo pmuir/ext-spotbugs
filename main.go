@@ -45,7 +45,7 @@ func watch() (err error) {
 			log.Fatalf("unexpected type %s\n", event)
 		}
 		//
-		if act.Spec.Summaries.StaticProgramAnalysis.Name == "" {
+		if len(act.Spec.Summaries.StaticProgramAnalysis.Tags) == 0 {
 			for _, attachment := range act.Spec.Attachments {
 				if attachment.Name == "spotbugs" {
 					// TODO Handle having multiple attachments properly
@@ -75,7 +75,9 @@ func watch() (err error) {
 							categories[b.Category] = category
 						}
 						act.Spec.Summaries.StaticProgramAnalysis = jenkinsv1.StaticProgramAnalysis{
-							Name:           attachment.Name,
+							Tags:           []string{
+								attachment.Name,
+							},
 							TotalBugs:      bugCollection.FindBugsSummary.TotalBugs,
 							HighPriority:   bugCollection.FindBugsSummary.HighPriority,
 							NormalPriority: bugCollection.FindBugsSummary.NormalPriority,
