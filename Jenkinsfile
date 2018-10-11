@@ -1,9 +1,7 @@
 pipeline {
-    agent {
-        label "jenkins-go"
-    }
+    agent any
     environment {
-      ORG               = 'pmuir'
+      ORG               = 'jenkinsxio'
       APP_NAME          = 'ext-spotbugs'
       GIT_PROVIDER      = 'github.com'
       CHARTMUSEUM_CREDS = credentials('jenkins-x-chartmuseum')
@@ -19,21 +17,12 @@ pipeline {
           HELM_RELEASE = "$PREVIEW_NAMESPACE".toLowerCase()
         }
         steps {
-          dir ('/home/jenkins/go/src/github.com/pmuir/ext-spotbugs') {
+          dir ('/home/jenkins/go/src/github.com/jenkinsxio/ext-spotbugs') {
             checkout scm
-            container('go') {
-              sh "make linux"
-              sh 'export VERSION=$PREVIEW_VERSION && skaffold build -f skaffold.yaml'
+            sh "make linux"
+            sh 'export VERSION=$PREVIEW_VERSION && skaffold build -f skaffold.yaml'
 
-
-              sh "jx step post build --image $DOCKER_REGISTRY/$ORG/$APP_NAME:$PREVIEW_VERSION"
-            }
-          }
-          dir ('/home/jenkins/go/src/github.com/pmuir/ext-spotbugs/charts/preview') {
-            container('go') {
-              sh "make preview"
-              sh "jx preview --app $APP_NAME --dir ../.."
-            }
+            sh "jx step post build --image $DOCKER_REGISTRY/$ORG/$APP_NAME:$PREVIEW_VERSION"
           }
         }
       }
@@ -42,11 +31,10 @@ pipeline {
           branch 'master'
         }
         steps {
-          container('go') {
-            dir ('/home/jenkins/go/src/github.com/pmuir/ext-spotbugs') {
-              checkout scm
+            dir ('/home/jenkins/go/src/github.com/jenkinsxio/ext-spotbugs') {
+              git 'https://jenkins-x/ext-spotbugs'
             }
-            dir ('/home/jenkins/go/src/github.com/pmuir/ext-spotbugs/charts/ext-spotbugs') {
+            dir ('/home/jenkins/go/src/github.com/jenkinsxio/ext-spotbugs/charts/ext-spotbugs') {
                 // ensure we're not on a detached head
                 sh "git checkout master"
                 // until we switch to the new kubernetes / jenkins credential implementation use git credentials store
@@ -54,20 +42,18 @@ pipeline {
 
                 sh "jx step git credentials"
             }
-            dir ('/home/jenkins/go/src/github.com/pmuir/ext-spotbugs') {
+            dir ('/home/jenkins/go/src/github.com/jenkinsxio/ext-spotbugs') {
               // so we can retrieve the version in later steps
               sh "echo \$(jx-release-version) > VERSION"
             }
-            dir ('/home/jenkins/go/src/github.com/pmuir/ext-spotbugs/charts/ext-spotbugs') {
+            dir ('/home/jenkins/go/src/github.com/jenkinsxio/ext-spotbugs/charts/ext-spotbugs') {
               sh "make tag"
             }
-            dir ('/home/jenkins/go/src/github.com/pmuir/ext-spotbugs') {
-              container('go') {
-                sh "make build"
-                sh 'export VERSION=`cat VERSION` && skaffold build -f skaffold.yaml'
+            dir ('/home/jenkins/go/src/github.com/jenkinsxio/ext-spotbugs') {
+              sh "make build"
+              sh 'export VERSION=`cat VERSION` && skaffold build -f skaffold.yaml'
 
-                sh "jx step post build --image $DOCKER_REGISTRY/$ORG/$APP_NAME:\$(cat VERSION)"
-              }
+              sh "jx step post build --image $DOCKER_REGISTRY/$ORG/$APP_NAME:\$(cat VERSION)"
             }
           }
         }
@@ -77,23 +63,23 @@ pipeline {
           branch 'master'
         }
         steps {
-          dir ('/home/jenkins/go/src/github.com/pmuir/ext-spotbugs/charts/ext-spotbugs') {
-            container('go') {
-              sh 'jx step changelog --version v\$(cat ../../VERSION)'
+          dir ('/home/jenkins/go/src/github.com/jenkinsxio/ext-spotbugs/charts/ext-spotbugs') {
+            sh 'jx step changelog --version v\$(cat ../../VERSION)'
 
-              // release the helm chart
-              sh 'jx step helm release'
+            // release the helm chart
+            sh 'jx step helm release'
+          }
+          dir ('/home/jenkins/go/src/github.com/jenkins-x/ext-spotbugs') {
+            // release the docker image
+            sh 'docker build -t docker.io/$ORG/$APP_NAME:\$(cat VERSION) .'
+            sh 'docker push docker.io/$ORG/$APP_NAME:\$(cat VERSION)'
+            sh 'docker tag docker.io/$ORG/$APP_NAME:\$(cat VERSION) docker.io/$ORG/$APP_NAME:latest'
+            sh 'docker push docker.io/$ORG/$APP_NAME:latest'
 
-              // promote through all 'Auto' promotion Environments
-              sh 'jx promote -b --all-auto --timeout 1h --version \$(cat ../../VERSION)'
-            }
+            // Run updatebot to update other repos
+            sh './updatebot.sh'
           }
         }
       }
-    }
-    post {
-        always {
-            cleanWs()
-        }
     }
   }
