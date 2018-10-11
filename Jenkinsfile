@@ -17,7 +17,7 @@ pipeline {
         HELM_RELEASE = "$PREVIEW_NAMESPACE".toLowerCase()
       }
       steps {
-        dir ('/home/jenkins/go/src/github.com/jenkinsxio/ext-spotbugs') {
+        dir ('/home/jenkins/go/src/github.com/jenkins-x/ext-spotbugs') {
           checkout scm
           sh "make linux"
           sh 'export VERSION=$PREVIEW_VERSION && skaffold build -f skaffold.yaml'
@@ -31,10 +31,10 @@ pipeline {
         branch 'master'
       }
       steps {
-        dir ('/home/jenkins/go/src/github.com/jenkinsxio/ext-spotbugs') {
+        dir ('/home/jenkins/go/src/github.com/jenkins-x/ext-spotbugs') {
           git 'https://github.com/jenkins-x/ext-spotbugs'
         }
-        dir ('/home/jenkins/go/src/github.com/jenkinsxio/ext-spotbugs/charts/ext-spotbugs') {
+        dir ('/home/jenkins/go/src/github.com/jenkins-x/ext-spotbugs/charts/ext-spotbugs') {
             // ensure we're not on a detached head
             sh "git checkout master"
             // until we switch to the new kubernetes / jenkins credential implementation use git credentials store
@@ -42,27 +42,26 @@ pipeline {
 
             sh "jx step git credentials"
         }
-        dir ('/home/jenkins/go/src/github.com/jenkinsxio/ext-spotbugs') {
+        dir ('/home/jenkins/go/src/github.com/jenkins-x/ext-spotbugs') {
           // so we can retrieve the version in later steps
           sh "echo \$(jx-release-version) > VERSION"
         }
-        dir ('/home/jenkins/go/src/github.com/jenkinsxio/ext-spotbugs/charts/ext-spotbugs') {
+        dir ('/home/jenkins/go/src/github.com/jenkins-x/ext-spotbugs/charts/ext-spotbugs') {
           sh "make tag"
         }
-        dir ('/home/jenkins/go/src/github.com/jenkinsxio/ext-spotbugs') {
+        dir ('/home/jenkins/go/src/github.com/jenkins-x/ext-spotbugs') {
           sh "make build"
           sh 'export VERSION=`cat VERSION` && skaffold build -f skaffold.yaml'
-
           sh "jx step post build --image $DOCKER_REGISTRY/$ORG/$APP_NAME:\$(cat VERSION)"
         }
       }
     }
-    stage('Promote to Environments') {
+    stage('Promote') {
       when {
         branch 'master'
       }
       steps {
-        dir ('/home/jenkins/go/src/github.com/jenkinsxio/ext-spotbugs/charts/ext-spotbugs') {
+        dir ('/home/jenkins/go/src/github.com/jenkins-x/ext-spotbugs/charts/ext-spotbugs') {
           sh 'jx step changelog --version v\$(cat ../../VERSION)'
 
           // release the helm chart
