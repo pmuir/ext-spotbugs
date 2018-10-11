@@ -32,7 +32,7 @@ pipeline {
         }
         steps {
             dir ('/home/jenkins/go/src/github.com/jenkinsxio/ext-spotbugs') {
-              git 'https://jenkins-x/ext-spotbugs'
+              git 'https://github.com/jenkins-x/ext-spotbugs'
             }
             dir ('/home/jenkins/go/src/github.com/jenkinsxio/ext-spotbugs/charts/ext-spotbugs') {
                 // ensure we're not on a detached head
