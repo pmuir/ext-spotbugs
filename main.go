@@ -29,8 +29,17 @@ func watch() (err error) {
 	if err != nil {
 		return err
 	}
-	ns := os.Getenv("SPOTBUGS_NAMESPACE")
+	ns := os.Getenv("TEAM_NAMESPACE")
+	if ns == "" {
+		ns = "jx"
+	}
+
 	client, err := jenkinsclientv1.NewForConfig(config)
+	if err != nil {
+		return err
+	}
+	// Watch doesn't return good errors, so do a List first
+	_, err = client.PipelineActivities(ns).List(metav1.ListOptions{})
 	if err != nil {
 		return err
 	}
