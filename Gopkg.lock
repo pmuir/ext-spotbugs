@@ -130,7 +130,7 @@
   revision = "9cad4c3443a7200dd6400aef47183728de563a38"
 
 [[projects]]
-  digest = "1:d3bc2abc9c51a172c4d8109ea8b37a94f469d6891b67a7702a20cbe2b0b03d38"
+  digest = "1:3acc366e02ae8d6c754b7a34f48d65b3f1ecb627159fb388806fbed1634560ef"
   name = "github.com/jenkins-x/jx"
   packages = [
     "pkg/apis/jenkins.io",
@@ -141,8 +141,8 @@
     "pkg/util",
   ]
   pruneopts = "UT"
-  revision = "46cde22513d1da52f194e5d798d092a08835de29"
-  version = "v1.3.410"
+  revision = "5e6865d14b45c8672cf335e42c701d43e3fbe713"
+  version = "v1.3.414"
 
 [[projects]]
   digest = "1:3e551bbb3a7c0ab2a2bf4660e7fcad16db089fdcfbb44b0199e62838038623ea"
@@ -269,7 +269,7 @@
     "idna",
   ]
   pruneopts = "UT"
-  revision = "146acd28ed5894421fb5aac80ca93bc1b1f46f87"
+  revision = "49bb7cea24b1df9410e1712aa6433dae904ff66a"
 
 [[projects]]
   branch = "master"
@@ -284,14 +284,14 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:850d28ab022512e2cd3cf511a77f363c29e22689b4031f2050871f5de47ae4a0"
+  digest = "1:f5aa274a0377f85735edc7fedfb0811d3cbc20af91633797cb359e29c3272271"
   name = "golang.org/x/sys"
   packages = [
     "unix",
     "windows",
   ]
   pruneopts = "UT"
-  revision = "4497e2df6f9e69048a54498c7affbbec3294ad47"
+  revision = "fa43e7bc11baaae89f3f902b2b4d832b68234844"
 
 [[projects]]
   digest = "1:a2ab62866c75542dd18d2b069fec854577a20211d7c0ea6ae746072a1dccdd18"
