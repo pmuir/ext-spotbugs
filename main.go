@@ -29,8 +29,17 @@ func watch() (err error) {
 	if err != nil {
 		return err
 	}
-	ns := os.Getenv("SPOTBUGS_NAMESPACE")
+	ns := os.Getenv("TEAM_NAMESPACE")
+	if ns == "" {
+		ns = "jx"
+	}
+
 	client, err := jenkinsclientv1.NewForConfig(config)
+	if err != nil {
+		return err
+	}
+	// Watch doesn't return good errors, so do a List first
+	_, err = client.PipelineActivities(ns).List(metav1.ListOptions{})
 	if err != nil {
 		return err
 	}
@@ -58,17 +67,6 @@ func watch() (err error) {
 						if err != nil {
 							log.Println(errors.Wrap(err, fmt.Sprintf("Unable to retrieve %s for processing", url)))
 						}
-						found := make([]jenkinsv1.Fact, 0)
-						for _, f := range act.Spec.Facts {
-							if f.FactType == FactTypeStaticProgramAnalysis {
-								found = append(found, f)
-								break
-							}
-						}
-						if len(found) > 1 {
-							return errors.New(fmt.Sprintf("More than one fact of kind %s found %s", FactTypeStaticProgramAnalysis, found))
-						}
-
 						fact := jenkinsv1.Fact{}
 						if fact.Name == "" {
 							fact.FactType = FactTypeStaticProgramAnalysis
@@ -115,6 +113,19 @@ func watch() (err error) {
 						measurements = append(measurements, createMeasurement("summary", jenkinsv1.StaticProgramAnalysisIgnored, bugCollection.FindBugsSummary.IgnorePriority))
 						measurements = append(measurements, createMeasurement("summary", jenkinsv1.StaticProgramAnalysisTotalClasses, bugCollection.FindBugsSummary.TotalClasses))
 						fact.Measurements = measurements
+						found := 0
+						for i, f := range act.Spec.Facts {
+							if f.FactType == jenkinsv1.FactTypeStaticProgramAnalysis {
+								act.Spec.Facts[i] = fact
+								found++
+								log.Printf("Found %s, found is %d", fact, found)
+							}
+						}
+						if found > 1 {
+							return errors.New(fmt.Sprintf("More than one fact of kind %s found %d", FactTypeStaticProgramAnalysis, found))
+						} else if found == 0 {
+							act.Spec.Facts = append(act.Spec.Facts, fact)
+						}
 						act, err = client.PipelineActivities(act.Namespace).Update(act)
 						log.Printf("Updated PipelineActivity %s with data from %s\n", act.Name, url)
 						if err != nil {
