@@ -3,3 +3,4 @@ github:
   - name: jenkins-x
     repositories:
     - name: ext-java-code-quality
+    - name: jenkins-x-extensions
