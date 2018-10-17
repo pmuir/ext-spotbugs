@@ -145,7 +145,7 @@ func onPipelineActivity(act *jenkinsv1.PipelineActivity, httpClient *http.Client
 				found := 0
 				for i, f := range act.Spec.Facts {
 					if f.FactType == jenkinsv1.FactTypeStaticProgramAnalysis {
-						act.Spec.Facts[i] = f
+						act.Spec.Facts[i] = fact
 						found++
 					}
 				}
