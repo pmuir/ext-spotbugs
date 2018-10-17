@@ -79,7 +79,11 @@ func onPipelineActivityObj(obj interface{}, httpClient *http.Client, jxClient *j
 	if !ok {
 		log.Fatalf("unexpected type %s\n", obj)
 	} else {
-		log.Fatalln(onPipelineActivity(act, httpClient, jxClient))
+		err := onPipelineActivity(act, httpClient, jxClient)
+		if err != nil {
+			log.Fatalln(err)
+		}
+
 	}
 }
 
@@ -106,7 +110,6 @@ func onPipelineActivity(act *jenkinsv1.PipelineActivity, httpClient *http.Client
 					fact.Tags = []string{
 						"spotbugs",
 					}
-					act.Spec.Facts = append(act.Spec.Facts, fact)
 				}
 				categories := make(map[string]map[string]int, 0)
 				measurements := make([]jenkinsv1.Measurement, 0)
@@ -144,13 +147,11 @@ func onPipelineActivity(act *jenkinsv1.PipelineActivity, httpClient *http.Client
 					if f.FactType == jenkinsv1.FactTypeStaticProgramAnalysis {
 						act.Spec.Facts[i] = fact
 						found++
-						log.Printf("Found %s, found is %d", fact, found)
 					}
 				}
 				if found > 1 {
-					return errors.New(fmt.Sprintf("More than one fact of kind %s found %d", FactTypeStaticProgramAnalysis, found))
+					return errors.New(fmt.Sprintf("More than one fact of kind %s, found %d", FactTypeStaticProgramAnalysis, found))
 				} else if found == 0 {
-					log.Printf("Appending %s to %v", fact, act.Spec.Facts)
 					act.Spec.Facts = append(act.Spec.Facts, fact)
 				}
 				act, err = jxClient.PipelineActivities(act.Namespace).Update(act)
@@ -193,14 +194,12 @@ func createMeasurement(t string, measurement string, value int) jenkinsv1.Measur
 }
 
 func main() {
-	go func() {
-		err := watch()
-		if err != nil {
-			log.Fatal(err)
-		}
-	}()
+	err := watch()
+	if err != nil {
+		log.Fatal(err)
+	}
 	http.HandleFunc("/", handler)
-	err := http.ListenAndServe(":8080", nil)
+	err = http.ListenAndServe(":8080", nil)
 	if err != nil {
 		panic(err.Error())
 	}
