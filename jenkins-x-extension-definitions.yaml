@@ -45,7 +45,7 @@ extensions:
   displayInCatalog: false
   parameters:
   - name: chartRepository
-    defaultValue: jenkins-x-extensions
+    defaultValue: http://chartmuseum.jenkins-x.io
   when:
   - onInstall
 - name: spotbugsAnalyzerUpgrade
@@ -55,6 +55,6 @@ extensions:
   displayInCatalog: false
   parameters:
   - name: chartRepository
-    defaultValue: jenkins-x-extensions
+    defaultValue: http://chartmuseum.jenkins-x.io
   when:
   - onUpgrade
