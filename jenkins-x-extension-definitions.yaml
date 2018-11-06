@@ -58,3 +58,10 @@ extensions:
     defaultValue: http://chartmuseum.jenkins-x.io
   when:
   - onUpgrade
+- name: spotbugsAnalyzerUninstall
+  namespace: jx
+  uuid: 4b41a4b8-e20d-11e8-9f32-f2801f1b9fd1
+  description: Uninstalls the analyzer microservice that summarises facts about the static program analysis
+  displayInCatalog: false
+  when:
+  - onUninstall
