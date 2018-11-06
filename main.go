@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/jenkins-x/jx/pkg/kube"
 	"io/ioutil"
+	"k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/fields"
 	"k8s.io/client-go/tools/cache"
 	"log"
@@ -96,6 +97,7 @@ func onPipelineActivity(act *jenkinsv1.PipelineActivity, httpClient *http.Client
 				bugCollection, err := parseSpotBugsReport(url, httpClient)
 				if err != nil {
 					log.Println(errors.Wrap(err, fmt.Sprintf("Unable to retrieve %s for processing", url)))
+					continue
 				}
 				fact := jenkinsv1.Fact{}
 				if fact.Name == "" {
@@ -142,23 +144,37 @@ func onPipelineActivity(act *jenkinsv1.PipelineActivity, httpClient *http.Client
 				measurements = append(measurements, createMeasurement("summary", jenkinsv1.StaticProgramAnalysisIgnored, bugCollection.FindBugsSummary.IgnorePriority))
 				measurements = append(measurements, createMeasurement("summary", jenkinsv1.StaticProgramAnalysisTotalClasses, bugCollection.FindBugsSummary.TotalClasses))
 				fact.Measurements = measurements
-				found := 0
-				for i, f := range act.Spec.Facts {
-					if f.FactType == jenkinsv1.FactTypeStaticProgramAnalysis {
-						act.Spec.Facts[i] = fact
-						found++
+				retries := 10
+				retry := 0
+				for retry < retries {
+					retry++
+					// Refresh the activity so that we try to write to an up to date version
+					act, err = jxClient.PipelineActivities(act.Namespace).Get(act.Name, v1.GetOptions{})
+					if err != nil {
+						return err
+					}
+					found := 0
+					for i, f := range act.Spec.Facts {
+						if f.FactType == jenkinsv1.FactTypeStaticProgramAnalysis {
+							act.Spec.Facts[i] = fact
+							found++
+						}
+					}
+					if found > 1 {
+						return errors.New(fmt.Sprintf("More than one fact of kind %s, found %d", FactTypeStaticProgramAnalysis, found))
+					} else if found == 0 {
+						act.Spec.Facts = append(act.Spec.Facts, fact)
+					}
+					act, err = jxClient.PipelineActivities(act.Namespace).Update(act)
+					if err != nil {
+						log.Println(errors.Wrap(err, fmt.Sprintf("Error updating PipelineActivity %s", act.Name)))
+						time.Sleep(time.Duration(100 * time.Millisecond))
+					} else {
+						log.Printf("Updated PipelineActivity %s with data from %s\n", act.Name, url)
+						retry = retries
 					}
 				}
-				if found > 1 {
-					return errors.New(fmt.Sprintf("More than one fact of kind %s, found %d", FactTypeStaticProgramAnalysis, found))
-				} else if found == 0 {
-					act.Spec.Facts = append(act.Spec.Facts, fact)
-				}
-				act, err = jxClient.PipelineActivities(act.Namespace).Update(act)
-				log.Printf("Updated PipelineActivity %s with data from %s\n", act.Name, url)
-				if err != nil {
-					log.Println(errors.Wrap(err, fmt.Sprintf("Error updating PipelineActivity %s", act.Name)))
-				}
+
 			}
 		}
 	}
