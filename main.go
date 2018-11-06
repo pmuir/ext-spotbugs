@@ -93,8 +93,8 @@ func onPipelineActivity(act *jenkinsv1.PipelineActivity, httpClient *http.Client
 		if attachment.Name == "spotbugs" {
 			// TODO Handle having multiple attachments properly
 			for _, url := range attachment.URLs {
-				url = fmt.Sprintf("%s?version=%d", url, time.Now().UnixNano()/int64(time.Millisecond))
-				bugCollection, err := parseSpotBugsReport(url, httpClient)
+				versionnedUrl := fmt.Sprintf("%s?version=%d", url, time.Now().UnixNano()/int64(time.Millisecond))
+				bugCollection, err := parseSpotBugsReport(versionnedUrl, httpClient)
 				if err != nil {
 					log.Println(errors.Wrap(err, fmt.Sprintf("Unable to retrieve %s for processing", url)))
 					continue
@@ -110,7 +110,7 @@ func onPipelineActivity(act *jenkinsv1.PipelineActivity, httpClient *http.Client
 						},
 					}
 					fact.Tags = []string{
-						"spotbugs",
+						"spotbugs", url,
 					}
 				}
 				categories := make(map[string]map[string]int, 0)
@@ -154,24 +154,35 @@ func onPipelineActivity(act *jenkinsv1.PipelineActivity, httpClient *http.Client
 						return err
 					}
 					found := 0
+					update := true
 					for i, f := range act.Spec.Facts {
 						if f.FactType == jenkinsv1.FactTypeStaticProgramAnalysis {
 							act.Spec.Facts[i] = fact
 							found++
+							for _, t := range f.Tags {
+								if t == url {
+									update = false
+								}
+							}
 						}
 					}
 					if found > 1 {
 						return errors.New(fmt.Sprintf("More than one fact of kind %s, found %d", FactTypeStaticProgramAnalysis, found))
 					} else if found == 0 {
+						update = true
 						act.Spec.Facts = append(act.Spec.Facts, fact)
 					}
-					act, err = jxClient.PipelineActivities(act.Namespace).Update(act)
-					if err != nil {
-						log.Println(errors.Wrap(err, fmt.Sprintf("Error updating PipelineActivity %s", act.Name)))
-						time.Sleep(time.Duration(100 * time.Millisecond))
+					if update {
+						act, err = jxClient.PipelineActivities(act.Namespace).Update(act)
+						if err != nil {
+							log.Println(errors.Wrap(err, fmt.Sprintf("Error updating PipelineActivity %s", act.Name)))
+							time.Sleep(time.Duration(100 * time.Millisecond))
+						} else {
+							log.Printf("Updated PipelineActivity %s with data from %s\n", act.Name, url)
+							break
+						}
 					} else {
-						log.Printf("Updated PipelineActivity %s with data from %s\n", act.Name, url)
-						retry = retries
+						break
 					}
 				}
 
