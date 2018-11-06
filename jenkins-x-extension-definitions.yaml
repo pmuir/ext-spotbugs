@@ -40,6 +40,7 @@ extensions:
     namespace: jx
 - name: spotbugsAnalyzerInstall
   namespace: jx
+  uuid: 9341af94-e1ca-11e8-9f32-f2801f1b9fd1
   description: Installs the analyzer microservice that summarises facts about the static program analysis
   displayInCatalog: false
   parameters:
@@ -49,6 +50,7 @@ extensions:
   - onInstall
 - name: spotbugsAnalyzerUpgrade
   namespace: jx
+  uuid: a10bb606-e1ca-11e8-9f32-f2801f1b9fd1
   description: Upgrades the analyzer microservice that summarises facts about the static program analysis
   displayInCatalog: false
   parameters:
