@@ -36,8 +36,13 @@ extensions:
   children:
   - name: spotbugsAnalyzerInstall
     namespace: jx
+    uuid: 9341af94-e1ca-11e8-9f32-f2801f1b9fd1
   - name: spotbugsAnalyzerUpgrade
     namespace: jx
+    uuid: a10bb606-e1ca-11e8-9f32-f2801f1b9fd1
+  - name: spotbugsAnalyzerUninstall
+    namespace: jx
+    uuid: 4b41a4b8-e20d-11e8-9f32-f2801f1b9fd1
 - name: spotbugsAnalyzerInstall
   namespace: jx
   uuid: 9341af94-e1ca-11e8-9f32-f2801f1b9fd1
